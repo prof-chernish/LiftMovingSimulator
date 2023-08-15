@@ -1,6 +1,6 @@
-package house;
+package house_system;
 
-import house.lift.Direction;
+import house_system.lift_system.Direction;
 
 public class Passenger {
     private final int requiredFloorNumber;

@@ -1,6 +1,6 @@
-package house;
+package house_system;
 
-import house.lift.LiftManager;
+import house_system.lift_system.LiftManager;
 import java.util.ArrayList;
 import java.util.List;
 

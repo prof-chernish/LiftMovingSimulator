@@ -1,4 +1,4 @@
-package house;
+package house_system;
 
 import java.util.ArrayList;
 import java.util.List;

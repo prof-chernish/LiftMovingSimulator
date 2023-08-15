@@ -1,8 +1,8 @@
 package ui;
 
-import house.House;
-import house.Passenger;
-import house.lift.Lift;
+import house_system.House;
+import house_system.Passenger;
+import house_system.lift_system.Lift;
 import simulator.HouseSimulator;
 import java.util.List;
 

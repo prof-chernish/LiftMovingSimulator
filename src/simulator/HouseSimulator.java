@@ -1,10 +1,10 @@
 package simulator;
 
-import house.Passenger;
-import house.lift.Direction;
-import house.Floor;
-import house.House;
-import house.lift.LiftManager;
+import house_system.Passenger;
+import house_system.lift_system.Direction;
+import house_system.Floor;
+import house_system.House;
+import house_system.lift_system.LiftManager;
 import java.util.List;
 import java.util.Random;
 

@@ -1,7 +1,7 @@
-package house.lift;
+package house_system.lift_system;
 
 import java.util.ArrayList;
-import house.Passenger;
+import house_system.Passenger;
 import java.util.List;
 
 public class Lift {

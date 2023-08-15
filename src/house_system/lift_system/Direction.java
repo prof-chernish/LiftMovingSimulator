@@ -1,4 +1,4 @@
-package house.lift;
+package house_system.lift_system;
 
 public enum Direction {
     UP('\u25B2'),

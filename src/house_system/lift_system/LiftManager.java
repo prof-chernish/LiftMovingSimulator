@@ -1,7 +1,7 @@
-package house.lift;
+package house_system.lift_system;
 
-import house.Floor;
-import house.Passenger;
+import house_system.Floor;
+import house_system.Passenger;
 import java.util.List;
 
 public class LiftManager {
