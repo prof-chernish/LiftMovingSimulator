@@ -1,3 +1,5 @@
+package house.lift;
+
 public enum Direction {
     UP('\u25B2'),
     DOWN('\u25BC');

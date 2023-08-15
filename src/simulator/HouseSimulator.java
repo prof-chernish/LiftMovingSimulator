@@ -1,4 +1,10 @@
-import java.util.ArrayList;
+package simulator;
+
+import house.Passenger;
+import house.lift.Direction;
+import house.Floor;
+import house.House;
+import house.lift.LiftManager;
 import java.util.List;
 import java.util.Random;
 
@@ -23,7 +29,6 @@ public class HouseSimulator {
                     int requiredFloorNumber;
                     do {
                         requiredFloorNumber = randomGenerator.nextInt(1, floorsCount);
-
                     } while (requiredFloorNumber == i);
                     Direction direction = requiredFloorNumber > i ? Direction.UP : Direction.DOWN;
                     Passenger passenger = new Passenger(requiredFloorNumber, direction);

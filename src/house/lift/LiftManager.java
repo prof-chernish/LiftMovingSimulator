@@ -1,3 +1,7 @@
+package house.lift;
+
+import house.Floor;
+import house.Passenger;
 import java.util.List;
 
 public class LiftManager {
@@ -35,13 +39,11 @@ public class LiftManager {
             if (liftPassengers.size() == Lift.CAPACITY) {
                 break;
             }
-
             if (passenger.getDirection() == lift.getDirection()) {
                 liftPassengers.add(passenger);
                 int lastFloorNumber = getNewLastFloorNumber(passenger);
                 lift.setLastFloorNumber(lastFloorNumber);
                 passengersOnTheFloor.remove(i);
-
             } else {
                 i++;
             }
@@ -53,32 +55,27 @@ public class LiftManager {
         int currentFloorNumber = lift.getCurrentFloorNumber();
         int nextFloorNumber = currentFloorNumber;
         if (currentFloorNumber != lift.getLastFloorNumber()) {
-            List<Passenger> passengers;
+            List<Passenger> passengersOnTheFloor;
             do {
                 if (lift.getDirection() == Direction.UP) {
                     nextFloorNumber = nextFloorNumber + 1;
                 } else {
                     nextFloorNumber = nextFloorNumber - 1;
                 }
-                passengers = floors.get(nextFloorNumber - 1).getPassengersOnTheFloor();
+                passengersOnTheFloor = floors.get(nextFloorNumber - 1).getPassengersOnTheFloor();
 
-            } while (!isStopRequired(nextFloorNumber, passengers));
+            } while (!isStopRequired(nextFloorNumber, passengersOnTheFloor));
 
         } else {
             nextFloorNumber = findNearestFloorWithPassengers(floors);
-
             if (nextFloorNumber == currentFloorNumber) {
                     changeDirection();
             } else {
                 lift.setLastFloorNumber(nextFloorNumber);
-                if (nextFloorNumber > currentFloorNumber) {
-                    lift.setDirection(Direction.UP);
-                } else {
-                    lift.setDirection(Direction.DOWN);
-                }
+                Direction newDirection = nextFloorNumber > currentFloorNumber ? Direction.UP : Direction.DOWN;
+                lift.setDirection(newDirection);
             }
         }
-
         lift.setCurrentFloorNumber(nextFloorNumber);
     }
 
@@ -108,10 +105,12 @@ public class LiftManager {
         int floorNumber = lift.getCurrentFloorNumber();
         List<Passenger> passengersOnTheFloor;
         int i = 1;
-        while (true) {
+        boolean isFloorEmpty = true;
+        while (isFloorEmpty) {
             passengersOnTheFloor = floors.get(floorNumber - 1).getPassengersOnTheFloor();
             if (passengersOnTheFloor.size() > 0) {
-                return floorNumber;
+                isFloorEmpty = false;
+
             } else {
                 do {
                     floorNumber = floorNumber + i;
@@ -120,7 +119,7 @@ public class LiftManager {
                 } while (floorNumber < 1 || floorNumber >= floors.size() + 1);
             }
         }
-
+        return floorNumber;
     }
 
 

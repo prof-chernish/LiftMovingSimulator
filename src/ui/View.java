@@ -1,3 +1,9 @@
+package ui;
+
+import house.House;
+import house.Passenger;
+import house.lift.Lift;
+import simulator.HouseSimulator;
 import java.util.List;
 
 public class View {
@@ -53,7 +59,7 @@ public class View {
             }
             sb.append("   ".repeat(Math.max(0, Lift.CAPACITY - liftPassengers.size())));
         } else {
-            sb.append("  ").append("   ".repeat(Lift.CAPACITY));;
+            sb.append("  ").append("   ".repeat(Lift.CAPACITY));
         }
         return sb.toString();
     }

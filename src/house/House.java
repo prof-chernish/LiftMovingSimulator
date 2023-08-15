@@ -1,8 +1,10 @@
+package house;
+
+import house.lift.LiftManager;
 import java.util.ArrayList;
 import java.util.List;
 
 public class House {
-
     private final List<Floor> floors = new ArrayList<>();
     private final LiftManager liftManager = new LiftManager();
 

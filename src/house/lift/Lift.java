@@ -1,4 +1,7 @@
+package house.lift;
+
 import java.util.ArrayList;
+import house.Passenger;
 import java.util.List;
 
 public class Lift {
