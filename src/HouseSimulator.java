@@ -3,58 +3,55 @@ import java.util.List;
 import java.util.Random;
 
 public class HouseSimulator {
-    private final LiftManager liftManager;
-    private final static Random RANDOM_GENERATOR = new Random();
-    private final int floorsCount = RANDOM_GENERATOR.nextInt(4, 10);
+    private final House house = new House();
     private int allPassengersCount;
 
-    public HouseSimulator() {
-        List<List<Integer>> passengersOnEachFloor = new ArrayList<>();
-        while (allPassengersCount == 0) {
-            passengersOnEachFloor = new ArrayList<>();
+    public House getHouse() {
+        return house;
+    }
 
+    public void initialize() {
+        Random randomGenerator = new Random();
+        int floorsCount = randomGenerator.nextInt(4, 15);
+        List<Floor> floors = house.getFloors();
+        while (allPassengersCount == 0) {
             for (int i = 1; i <= floorsCount; i++) {
-                List<Integer> passengers = new ArrayList<>();
-                int passengersCount = RANDOM_GENERATOR.nextInt(0, 7);
+                Floor floor = new Floor();
+                int passengersCount = randomGenerator.nextInt(0, 7);
                 allPassengersCount += passengersCount;
                 for (int j = 0; j < passengersCount; j++) {
-                    int passenger;
+                    int requiredFloorNumber;
                     do {
-                        passenger = RANDOM_GENERATOR.nextInt(1, floorsCount);
+                        requiredFloorNumber = randomGenerator.nextInt(1, floorsCount);
 
-                    } while (passenger == i);
-                    passengers.add(passenger);
+                    } while (requiredFloorNumber == i);
+                    Direction direction = requiredFloorNumber > i ? Direction.UP : Direction.DOWN;
+                    Passenger passenger = new Passenger(requiredFloorNumber, direction);
+                    floor.getPassengersOnTheFloor().add(passenger);
                 }
-                passengersOnEachFloor.add(passengers);
+                floors.add(floor);
             }
         }
-        liftManager = new LiftManager(passengersOnEachFloor);
     }
 
-    public LiftManager getLiftManager() {
-        return liftManager;
-    }
 
-    public int getFloorsCount() {
-        return floorsCount;
-    }
 
     public void startSimulation() {
-        boolean isPassengerExist = true;
-        int iteration = 0;
-        while (isPassengerExist) {
-            iteration++;
-            int releasedPassengersCount = liftManager.letPassengersOut();
-            allPassengersCount -= releasedPassengersCount;
-            liftManager.letPassengersIn();
-            View view = new View(this);
-            view.showIteration(iteration);
-            if (allPassengersCount > 0) {
-                liftManager.goToTheNextFloor();
+        LiftManager liftManager = house.getLiftManager();
+        List<Floor> floors = house.getFloors();
+        int releasedPassengersCount = liftManager.letPassengersOut();
+        allPassengersCount -= releasedPassengersCount;
+        liftManager.letPassengersIn(floors);
+    }
 
-            } else {
-                isPassengerExist = false;
-            }
+    public boolean hasNextFloor() {
+        LiftManager liftManager = house.getLiftManager();
+        List<Floor> floors = house.getFloors();
+        if (allPassengersCount > 0) {
+            liftManager.goToTheNextFloor(floors);
+            return true;
+        } else {
+            return false;
         }
     }
 

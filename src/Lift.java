@@ -2,34 +2,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Lift {
-    private final List<Integer> liftPassengers = new ArrayList<>();
-    private int lastFloor = 1;
+    private final List<Passenger> liftPassengers = new ArrayList<>();
+    private int lastFloorNumber = 1;
     private Direction direction = Direction.UP;
     public final static int CAPACITY = 5;
-    private int currentFloor = 1;
+    private int currentFloorNumber = 1;
 
-    public int getCurrentFloor() {
-        return currentFloor;
+    public int getCurrentFloorNumber() {
+        return currentFloorNumber;
     }
 
     public void setDirection(Direction direction) {
         this.direction = direction;
     }
 
-    public void setCurrentFloor(int currentFloor) {
-        this.currentFloor = currentFloor;
+    public void setCurrentFloorNumber(int currentFloorNumber) {
+        this.currentFloorNumber = currentFloorNumber;
     }
 
-    public void setLastFloor(int lastFloor) {
-        this.lastFloor = lastFloor;
+    public void setLastFloorNumber(int lastFloorNumber) {
+        this.lastFloorNumber = lastFloorNumber;
     }
 
-    public List<Integer> getLiftPassengers() {
+    public List<Passenger> getLiftPassengers() {
         return liftPassengers;
     }
 
-    public int getLastFloor() {
-        return lastFloor;
+    public int getLastFloorNumber() {
+        return lastFloorNumber;
     }
 
     public Direction getDirection() {

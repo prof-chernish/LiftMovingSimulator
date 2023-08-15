@@ -2,15 +2,6 @@ import java.util.List;
 
 public class LiftManager {
     private final Lift lift = new Lift();
-    private final List<List<Integer>> passengersOnEachFloor;
-
-    public LiftManager(List<List<Integer>> passengersOnEachFloor) {
-        this.passengersOnEachFloor = passengersOnEachFloor;
-    }
-
-    public List<List<Integer>> getPassengersOnEachFloor() {
-        return passengersOnEachFloor;
-    }
 
     public Lift getLift() {
         return lift;
@@ -18,10 +9,12 @@ public class LiftManager {
 
     public int letPassengersOut() {
         int releasedPassengersCount = 0;
-        List<Integer> liftPassengers = lift.getLiftPassengers();
+        List<Passenger> liftPassengers = lift.getLiftPassengers();
         int i = 0;
+        Passenger passenger;
         while (i < liftPassengers.size()) {
-            if (liftPassengers.get(i) == lift.getCurrentFloor()) {
+            passenger = liftPassengers.get(i);
+            if (passenger.getRequiredFloorNumber() == lift.getCurrentFloorNumber()) {
                 liftPassengers.remove(i);
                 releasedPassengersCount++;
             } else {
@@ -31,21 +24,22 @@ public class LiftManager {
         return releasedPassengersCount;
     }
 
-    public void letPassengersIn() {
-        List<Integer> passengersOnTheFloor = passengersOnEachFloor.get(lift.getCurrentFloor() - 1);
-        List<Integer> liftPassengers = lift.getLiftPassengers();
+    public void letPassengersIn(List<Floor> floors) {
+        int currentFloorNumber = lift.getCurrentFloorNumber();
+        List<Passenger> liftPassengers = lift.getLiftPassengers();
+        List<Passenger> passengersOnTheFloor = floors.get(currentFloorNumber - 1).getPassengersOnTheFloor();
         int i = 0;
+        Passenger passenger;
         while (i < passengersOnTheFloor.size()){
-            int passenger = passengersOnTheFloor.get(i);
-
-            if (liftPassengers.size() == lift.CAPACITY) {
+            passenger = passengersOnTheFloor.get(i);
+            if (liftPassengers.size() == Lift.CAPACITY) {
                 break;
             }
 
-            if (getDirectionForPassenger(passenger) == lift.getDirection()) {
+            if (passenger.getDirection() == lift.getDirection()) {
                 liftPassengers.add(passenger);
-                int lastFloor = getNewLastFloor(passenger);
-                lift.setLastFloor(lastFloor);
+                int lastFloorNumber = getNewLastFloorNumber(passenger);
+                lift.setLastFloorNumber(lastFloorNumber);
                 passengersOnTheFloor.remove(i);
 
             } else {
@@ -55,43 +49,75 @@ public class LiftManager {
 
     }
 
-    public void goToTheNextFloor() {
-        int currentFloor = lift.getCurrentFloor();
-        if (currentFloor == lift.getLastFloor()) {
-            if (passengersOnEachFloor.get(currentFloor - 1).size() > 0) {
-                changeDirection();
-                return;
-            }
-            int floor = findNearestFloorWithPassengers();
-            lift.setLastFloor(floor);
-            if (floor > currentFloor) {
-                lift.setDirection(Direction.UP);
-            } else {
-                lift.setDirection(Direction.DOWN);
-            }
+    public void goToTheNextFloor(List<Floor> floors) {
+        int currentFloorNumber = lift.getCurrentFloorNumber();
+        int nextFloorNumber = currentFloorNumber;
+        if (currentFloorNumber != lift.getLastFloorNumber()) {
+            List<Passenger> passengers;
+            do {
+                if (lift.getDirection() == Direction.UP) {
+                    nextFloorNumber = nextFloorNumber + 1;
+                } else {
+                    nextFloorNumber = nextFloorNumber - 1;
+                }
+                passengers = floors.get(nextFloorNumber - 1).getPassengersOnTheFloor();
 
-        }
+            } while (!isStopRequired(nextFloorNumber, passengers));
 
-        if (lift.getDirection() == Direction.UP) {
-            lift.setCurrentFloor(currentFloor + 1);
         } else {
-            lift.setCurrentFloor(currentFloor - 1);
+            nextFloorNumber = findNearestFloorWithPassengers(floors);
+
+            if (nextFloorNumber == currentFloorNumber) {
+                    changeDirection();
+            } else {
+                lift.setLastFloorNumber(nextFloorNumber);
+                if (nextFloorNumber > currentFloorNumber) {
+                    lift.setDirection(Direction.UP);
+                } else {
+                    lift.setDirection(Direction.DOWN);
+                }
+            }
         }
+
+        lift.setCurrentFloorNumber(nextFloorNumber);
     }
 
-    private int findNearestFloorWithPassengers() {
-        int floor = lift.getCurrentFloor();
+    private boolean isStopRequired(int nextFloor, List<Passenger> passengers) {
+        return hasExitingPassengers(nextFloor) || canPickUpPassenger(passengers);
+    }
+
+    private boolean hasExitingPassengers(int nextFloor) {
+        List<Passenger> liftPassengers = lift.getLiftPassengers();
+        return liftPassengers.
+                stream().
+                anyMatch(passenger -> passenger.getRequiredFloorNumber() == nextFloor);
+    }
+
+    private boolean canPickUpPassenger(List<Passenger> passengers) {
+        return hasMoreSpace() &&
+                passengers.
+                stream().
+                anyMatch(passenger -> passenger.getDirection() == lift.getDirection());
+    }
+
+    private boolean hasMoreSpace() {
+        return lift.getLiftPassengers().size() < Lift.CAPACITY;
+    }
+
+    private int findNearestFloorWithPassengers(List<Floor> floors) {
+        int floorNumber = lift.getCurrentFloorNumber();
+        List<Passenger> passengersOnTheFloor;
         int i = 1;
         while (true) {
-            if (passengersOnEachFloor.get(floor - 1).size() > 0) {
-                return floor;
+            passengersOnTheFloor = floors.get(floorNumber - 1).getPassengersOnTheFloor();
+            if (passengersOnTheFloor.size() > 0) {
+                return floorNumber;
             } else {
                 do {
-                    floor = floor + i;
+                    floorNumber = floorNumber + i;
                     i = (int) Math.signum(i) * (Math.abs(i) + 1) * (-1);
 
-                } while (floor < 1 || floor >= passengersOnEachFloor.size() + 1);
-
+                } while (floorNumber < 1 || floorNumber >= floors.size() + 1);
             }
         }
 
@@ -106,19 +132,12 @@ public class LiftManager {
         }
     }
 
-    private int getNewLastFloor(int passenger) {
+    private int getNewLastFloorNumber(Passenger passenger) {
         if (lift.getDirection() == Direction.UP) {
-            return Math.max(lift.getLastFloor(), passenger);
+            return Math.max(lift.getLastFloorNumber(), passenger.getRequiredFloorNumber());
         } else {
-            return Math.min(lift.getLastFloor(), passenger);
+            return Math.min(lift.getLastFloorNumber(), passenger.getRequiredFloorNumber());
         }
     }
 
-    private Direction getDirectionForPassenger(int passenger) {
-        if (passenger > lift.getCurrentFloor()) {
-            return Direction.UP;
-        } else {
-            return Direction.DOWN;
-        }
-    }
 }

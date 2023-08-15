@@ -1,57 +1,60 @@
 import java.util.List;
 
 public class View {
-    private final HouseSimulator houseSimulator;
+    private final HouseSimulator houseSimulator = new HouseSimulator();
 
-    public View(HouseSimulator houseSimulator) {
-        this.houseSimulator = houseSimulator;
-
+    public void start() {
+        houseSimulator.initialize();
+        showIteration(0);
+        int iteration = 1;
+        do {
+            houseSimulator.startSimulation();
+            showIteration(iteration);
+            iteration++;
+        } while (houseSimulator.hasNextFloor());
     }
 
-    public void showIteration(int iteration) {
-        System.out.println("========= Шаг " + iteration + " =============");
 
-        for (int floor = houseSimulator.getFloorsCount(); floor > 0 ; floor--) {
+    private void showIteration(int iteration) {
+        House house = houseSimulator.getHouse();
+        int floors = house.getFloors().size();
+        System.out.println("============== Шаг " + iteration + " ===============");
+        for (int floor = floors; floor > 0 ; floor--) {
             System.out.println(getHouseView(floor));
         }
         System.out.println();
-
     }
 
     private String getHouseView(int floor) {
-        List<Integer> passengersOnTheFloor = houseSimulator.getLiftManager().getPassengersOnEachFloor().get(floor - 1);
+        String stringFloor = floor < 10 ? "0" + floor + " этаж" : floor + " этаж";
+        House house = houseSimulator.getHouse();
+        List<Passenger> passengersOnTheFloor = house.getFloors().get(floor - 1).getPassengersOnTheFloor();
         StringBuilder sb = new StringBuilder();
-        sb.append("| ").append(getLiftView(floor)).append(" | ");
-
-        for (Integer passenger: passengersOnTheFloor) {
-            sb.append(passenger).append(" ");
+        sb.append(stringFloor).append("| ").append(getLiftView(floor)).append(" | ");
+        for (Passenger passenger: passengersOnTheFloor) {
+            int floorNumber = passenger.getRequiredFloorNumber();
+            sb.append(floorNumber).append(" ");
         }
-
         return sb.toString();
     }
 
     private String getLiftView(int floor) {
-        Lift lift = houseSimulator.getLiftManager().getLift();
+        Lift lift = houseSimulator.getHouse().getLiftManager().getLift();
         StringBuilder sb = new StringBuilder();
-        if (floor == lift.getCurrentFloor()) {
+        if (floor == lift.getCurrentFloorNumber()) {
             sb.append(lift.getDirection().getLabel()).append(" ");
-            List<Integer> liftPassengers = lift.getLiftPassengers();
-
-            for (Integer passenger: liftPassengers) {
-                sb.append(passenger).append(" ");
+            List<Passenger> liftPassengers = lift.getLiftPassengers();
+            for (Passenger passenger: liftPassengers) {
+                int floorNumber = passenger.getRequiredFloorNumber();
+                sb.append(floorNumber).append(" ");
+                if (floorNumber < 10) {
+                    sb.append(" ");
+                }
             }
-
-            for (int i = 0; i < Lift.CAPACITY - liftPassengers.size(); i++) {
-                sb.append("  ");
-            }
-
+            sb.append("   ".repeat(Math.max(0, Lift.CAPACITY - liftPassengers.size())));
         } else {
-            sb.append("  ");
-            for (int i = 0; i < Lift.CAPACITY; i++) {
-                sb.append("  ");
-            }
+            sb.append("  ").append("   ".repeat(Lift.CAPACITY));;
         }
-
         return sb.toString();
     }
 
